@@ -13,4 +13,8 @@ class Mensagem implements Serializable {
     public String getConteudo() {
         return conteudo;
     }
+
+    public void setConteudo(String mensagem) {
+        this.conteudo = mensagem;
+    }
 }

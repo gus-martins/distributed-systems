@@ -20,31 +20,30 @@ public class Servidor {
 
         // Desempacotando a mensagem recebida
         ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+        Mensagem mensagem = (Mensagem) ois.readObject();
 
-        int length = ois.readInt();
-        byte[] dados = new byte[length];
-        ois.readFully(dados, 0, length);
-        ByteArrayInputStream bais = new ByteArrayInputStream(dados);
-        ObjectInputStream oisDesempacotado = new ObjectInputStream(bais);
-        Mensagem mensagem = (Mensagem) oisDesempacotado.readObject();
-        System.out.println("Mensagem recebida: " + mensagem.getConteudo());
+        // Empacotando a mensagem de resposta do servidor
+        // comparando o nome do produto recebido com os produtos do servidor
+        // respondendo "troca efetuada" ou "produto não encontrado", baseado no nome
 
-        // Empacotando a mensagem de resposta
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream oosEmpacotado = new ObjectOutputStream(baos);
-        Mensagem reply = new Mensagem("Mensagem recebida no servidor. Conexão estabelecida com sucesso.");
-        oosEmpacotado.writeObject(reply);
-        byte[] dadosReply = baos.toByteArray();
+        Controle controle = new Controle();
+        String nome = mensagem.getConteudo();
 
-        // Enviando a mensagem de resposta
-        ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
-        oos.writeInt(dadosReply.length);
-        oos.write(dadosReply);
-        oos.flush();
+        if (controle.trocarProduto(nome)) {
+            ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+            mensagem.setConteudo("Troca efetuada");
+            oos.writeObject(mensagem);
+            oos.close();
+        } else {
+            ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+            mensagem.setConteudo("Produto não encontrado");
+            oos.writeObject(mensagem);
+            oos.close();
+        }
 
         ois.close();
-        oos.close();
         socket.close();
         serverSocket.close();
     }
+
 }

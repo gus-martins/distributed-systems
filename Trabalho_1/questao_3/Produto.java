@@ -71,3 +71,39 @@ class Apostila extends Produto {
                 + String.format("%.2f", preco);
     }
 }
+
+class Controle {
+
+    private Produto[] produtos;
+
+    public Controle() {
+
+        produtos = new Produto[10];
+
+        produtos[0] = new Livro("Guerra e Paz", 59.90, "Liev Tolstói", 1000);
+        produtos[1] = new Livro("Guerra dos Tronos", 39.90, "George R. R. Martin", 500);
+        produtos[2] = new Ebook("O Silmarillion", 29.90, "J. R. R. Tolkien", 5.0);
+        produtos[3] = new Ebook("O Guia do Mochileiro das Galáxias", 19.90, "Douglas Adams", 2.0);
+        produtos[4] = new Apostila("Apostila de Java", 9.90, "Java", 100);
+        produtos[5] = new Apostila("Apostila de Python", 9.90, "Python", 100);
+        produtos[6] = new Livro("O Elefante Desaparece", 29.90, "Haruki Murakami", 300);
+        produtos[7] = new Livro("172 Horas na Lua", 19.90, "Johan Harstad", 200);
+        produtos[8] = new Ebook("172 Horas na Lua", 19.90, "Johan Harstad", 0.5);
+        produtos[9] = new Ebook("O Elefante Desaparece", 19.90, "Haruki Murakami", 0.5);
+
+    }
+
+    public Produto[] getProdutos() {
+        return produtos;
+    }
+
+    public boolean trocarProduto(String nomeProduto) {
+        for (Produto produto : produtos) {
+            if (produto.nome.equals(nomeProduto)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+}

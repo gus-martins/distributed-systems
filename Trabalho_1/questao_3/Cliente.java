@@ -7,34 +7,63 @@ public class Cliente {
 
     public static void main(String[] args) throws IOException, ClassNotFoundException {
 
-        // Iniciando o cliente
-        System.out.println("Cliente iniciado");
-        Socket socket = new Socket("localhost", 9876); // IP e porta do servidor
+        // Iniciando o menu
+        try {
 
-        // Empacotando a mensagem
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream oos = new ObjectOutputStream(baos);
-        Mensagem mensagem = new Mensagem("Mensagem enviada do cliente para o servidor.");
-        oos.writeObject(mensagem);
-        byte[] dados = baos.toByteArray();
+            while (true) {
 
-        // Enviando a mensagem empacotada para o servidor
-        oos.writeInt(dados.length);
-        oos.write(dados);
-        oos.flush();
+                Socket socket = new Socket("localhost", 9876); // IP e porta do servidor
+                Controle controle = new Controle();
 
-        // Desempacotando a mensagem de resposta do servidor
-        ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
-        int length = ois.readInt();
-        byte[] dadosReply = new byte[length];
-        ois.readFully(dadosReply, 0, length);
-        ByteArrayInputStream bais = new ByteArrayInputStream(dadosReply);
-        ObjectInputStream oisDesempacotado = new ObjectInputStream(bais);
-        Mensagem reply = (Mensagem) oisDesempacotado.readObject();
-        System.out.println("Mensagem recebida do servidor: " + reply.getConteudo());
+                System.out.println("Escolha uma opção:");
+                System.out.println("1 - Listar produtos");
+                System.out.println("2 - Trocar produto");
+                System.out.println("3 - Sair");
+                System.out.print("Opção: ");
 
-        ois.close();
-        oos.close();
-        socket.close();
+                BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+                String opcao = br.readLine();
+
+                switch (opcao) {
+                    case "1":
+                        System.out.println("Produtos:");
+                        for (Produto produto : controle.getProdutos()) {
+                            System.out.println(produto);
+                        }
+                        break;
+                    case "2":
+                        System.out.println("Digite o nome do produto que deseja trocar:");
+                        String nome = br.readLine();
+                        // Empacotando a mensagem
+
+                        ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+                        Mensagem mensagem = new Mensagem(nome);
+                        oos.writeObject(mensagem);
+
+                        // Desempacotando a mensagem de resposta do servidor
+                        ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+                        Mensagem reply = (Mensagem) ois.readObject();
+                        System.out.println(reply.getConteudo());
+
+                        ois.close();
+                        oos.close();
+                        socket.close();
+                        break;
+                    case "3":
+                        System.out.println("Saindo...");
+                        System.exit(0);
+                        break;
+                    default:
+                        System.out.println("Opção inválida");
+                        break;
+                }
+                socket.close();
+                break;
+            }
+        } catch (Exception e) {
+            System.out.println("Erro: " + e.getMessage());
+        } catch (Throwable e) {
+            System.out.println("Erro: " + e.getMessage());
+        }
     }
 }
