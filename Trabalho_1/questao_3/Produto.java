@@ -77,33 +77,145 @@ class Controle {
     private Produto[] produtos;
 
     public Controle() {
-
         produtos = new Produto[10];
+    }
 
-        produtos[0] = new Livro("Guerra e Paz", 59.90, "Liev Tolstói", 1000);
-        produtos[1] = new Livro("Guerra dos Tronos", 39.90, "George R. R. Martin", 500);
-        produtos[2] = new Ebook("O Silmarillion", 29.90, "J. R. R. Tolkien", 5.0);
-        produtos[3] = new Ebook("O Guia do Mochileiro das Galáxias", 19.90, "Douglas Adams", 2.0);
-        produtos[4] = new Apostila("Apostila de Java", 9.90, "Java", 100);
-        produtos[5] = new Apostila("Apostila de Python", 9.90, "Python", 100);
-        produtos[6] = new Livro("O Elefante Desaparece", 29.90, "Haruki Murakami", 300);
-        produtos[7] = new Livro("172 Horas na Lua", 19.90, "Johan Harstad", 200);
-        produtos[8] = new Ebook("172 Horas na Lua", 19.90, "Johan Harstad", 0.5);
-        produtos[9] = new Ebook("O Elefante Desaparece", 19.90, "Haruki Murakami", 0.5);
+    public void incriseSize() {
+        Produto[] produtosTemp = new Produto[produtos.length + 10];
+        for (int i = 0; i < produtos.length; i++) {
+            produtosTemp[i] = produtos[i];
+        }
+        produtos = produtosTemp;
+    }
 
+    public boolean isEmpty() {
+        return produtos[0] == null;
+    }
+
+    public boolean isFull() {
+        return produtos[produtos.length - 1] != null;
     }
 
     public Produto[] getProdutos() {
+        if (isEmpty()) {
+            System.out.println("Não há produtos cadastrados");
+            return null;
+        }
         return produtos;
     }
 
-    public boolean trocarProduto(String nomeProduto) {
-        for (Produto produto : produtos) {
-            if (produto.nome.equals(nomeProduto)) {
-                return true;
+    public void addLivro(String nome, double preco, String autor, int numPaginas) {
+        if (isEmpty()) {
+            produtos[0] = new Livro(nome, preco, autor, numPaginas);
+        } else if (isFull()) {
+            incriseSize();
+            for (int i = 0; i < produtos.length; i++) {
+                if (produtos[i] == null) {
+                    produtos[i] = new Livro(nome, preco, autor, numPaginas);
+                    break;
+                }
+            }
+        } else {
+            for (int i = 0; i < produtos.length; i++) {
+                if (produtos[i] == null) {
+                    produtos[i] = new Livro(nome, preco, autor, numPaginas);
+                    break;
+                }
             }
         }
-        return false;
+    }
+
+    public void addEbook(String nome, double preco, String autor, double tamanhoArquivoMb) {
+        if (isEmpty()) {
+            produtos[0] = new Ebook(nome, preco, autor, tamanhoArquivoMb);
+        } else if (isFull()) {
+            incriseSize();
+            for (int i = 0; i < produtos.length; i++) {
+                if (produtos[i] == null) {
+                    produtos[i] = new Ebook(nome, preco, autor, tamanhoArquivoMb);
+                    break;
+                }
+            }
+        } else {
+            for (int i = 0; i < produtos.length; i++) {
+                if (produtos[i] == null) {
+                    produtos[i] = new Ebook(nome, preco, autor, tamanhoArquivoMb);
+                    break;
+                }
+            }
+        }
+    }
+
+    public void addApostila(String nome, double preco, String materia, int numPaginas) {
+        if (isEmpty()) {
+            produtos[0] = new Apostila(nome, preco, materia, numPaginas);
+        } else if (isFull()) {
+            incriseSize();
+            for (int i = 0; i < produtos.length; i++) {
+                if (produtos[i] == null) {
+                    produtos[i] = new Apostila(nome, preco, materia, numPaginas);
+                    break;
+                }
+            }
+        } else {
+            for (int i = 0; i < produtos.length; i++) {
+                if (produtos[i] == null) {
+                    produtos[i] = new Apostila(nome, preco, materia, numPaginas);
+                    break;
+                }
+            }
+        }
+    }
+
+    public void removeProdutoComDeslocamento(String nome) {
+        for (int i = 0; i < produtos.length; i++) {
+            if (produtos[i].nome.equals(nome)) {
+                produtos[i] = null;
+                for (int j = i; j < produtos.length - 1; j++) {
+                    produtos[j] = produtos[j + 1];
+                }
+                produtos[produtos.length - 1] = null;
+                break;
+            }
+        }
+    }
+
+    public void trocarProdutoLivro(String nomeAntigo, String nomeNovo, double preco, String autor, int numPaginas) {
+        for (int i = 0; i < produtos.length; i++) {
+            if (produtos[i].nome.equals(nomeAntigo)) {
+                produtos[i] = new Livro(nomeNovo, preco, autor, numPaginas);
+                break;
+            } else if (produtos[i] == null) {
+                System.out.println("Produto não encontrado");
+                break;
+            }
+        }
+    }
+
+    public void trocarProdutoEbook(String nomeAntigo, String nomeNovo, double preco, String autor,
+            double tamanhoArquivoMb) {
+        for (int i = 0; i < produtos.length; i++) {
+            if (produtos[i].nome.equals(nomeAntigo)) {
+                produtos[i] = new Ebook(nomeNovo, preco, autor, tamanhoArquivoMb);
+                break;
+            } else if (produtos[i] == null) {
+                System.out.println("Produto não encontrado");
+                break;
+            }
+        }
+    }
+
+    public void trocarProdutoApostila(String nomeAntigo, String nomeNovo, double preco, String materia,
+            int numPaginas) {
+        for (int i = 0; i < produtos.length; i++) {
+            if (produtos[i].nome.equals(nomeAntigo)) {
+                produtos[i] = new Apostila(nomeNovo, preco, materia, numPaginas);
+                break;
+            } else if (produtos[i] == null) {
+                System.out.println("Produto não encontrado");
+                break;
+            }
+        }
     }
 
 }

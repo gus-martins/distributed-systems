@@ -23,23 +23,33 @@ public class Servidor {
         Mensagem mensagem = (Mensagem) ois.readObject();
 
         // Empacotando a mensagem de resposta do servidor
-        // comparando o nome do produto recebido com os produtos do servidor
-        // respondendo "troca efetuada" ou "produto não encontrado", baseado no nome
+        if (mensagem.getConteudo().equals("troca")) {
+            ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+            Mensagem reply = new Mensagem(
+                    "Qual o nome do produto que o cliente deseja trocar? e as informações do novo produto?");
+            oos.writeObject(reply);
+
+            // Desempacotando a mensagem recebida
+            ois = new ObjectInputStream(socket.getInputStream());
+            mensagem = (Mensagem) ois.readObject();
+
+            // Lendo o nome do produto que o cliente deseja trocar e as informações do novo
+            // produto
+            String[] info = mensagem.getConteudo().split(",");
+            String nomeProduto = info[0];
+            String nomeNovoProduto = info[1];
+            double precoNovoProduto = Double.parseDouble(info[2]);
+            String autorNovoProduto = info[3];
+            int numPaginasNovoProduto = Integer.parseInt(info[4]);
+
+            // Trocando o produto
+            Controle controle = new Controle();
+            controle.trocarProdutoLivro(nomeProduto, nomeNovoProduto, precoNovoProduto, autorNovoProduto,
+                    numPaginasNovoProduto);
+
+        }
 
         Controle controle = new Controle();
-        String nome = mensagem.getConteudo();
-
-        if (controle.trocarProduto(nome)) {
-            ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
-            mensagem.setConteudo("Troca efetuada");
-            oos.writeObject(mensagem);
-            oos.close();
-        } else {
-            ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
-            mensagem.setConteudo("Produto não encontrado");
-            oos.writeObject(mensagem);
-            oos.close();
-        }
 
         ois.close();
         socket.close();

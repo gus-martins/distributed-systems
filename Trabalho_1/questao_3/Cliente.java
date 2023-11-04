@@ -18,7 +18,9 @@ public class Cliente {
                 System.out.println("Escolha uma opção:");
                 System.out.println("1 - Listar produtos");
                 System.out.println("2 - Trocar produto");
-                System.out.println("3 - Sair");
+                System.out.println("3 - Cadastrar produto");
+                System.out.println("4 - Remover produto");
+                System.out.println("5 - Sair");
                 System.out.print("Opção: ");
 
                 BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -32,17 +34,38 @@ public class Cliente {
                         }
                         break;
                     case "2":
-                        System.out.println("Digite o nome do produto que deseja trocar:");
-                        String nome = br.readLine();
-                        // Empacotando a mensagem
 
+                        // Empacotar a requisição de troca de produto
                         ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
-                        Mensagem mensagem = new Mensagem(nome);
+                        Mensagem mensagem = new Mensagem("troca");
+                        oos.writeObject(mensagem);
+
+                        // Desempacotar a resposta do servidor
+                        ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+                        Mensagem reply = (Mensagem) ois.readObject();
+                        // "Qual o nome do produto que o cliente deseja trocar? e as informações do novo
+                        // produto?"
+                        // OBS: divida as informações por vírgula
+                        System.out.println(reply.getConteudo());
+
+                        // Lendo o nome do produto que o cliente deseja trocar e as informações do novo
+                        // produto
+                        String[] info = br.readLine().split(",");
+                        String nomeProduto = info[0];
+                        String nomeNovoProduto = info[1];
+                        double precoNovoProduto = Double.parseDouble(info[2]);
+                        String autorNovoProduto = info[3];
+                        int numPaginasNovoProduto = Integer.parseInt(info[4]);
+
+                        // Empacotando a mensagem
+                        oos = new ObjectOutputStream(socket.getOutputStream());
+                        mensagem = new Mensagem(nomeProduto + "," + nomeNovoProduto + "," +
+                                precoNovoProduto + "," + autorNovoProduto + "," + numPaginasNovoProduto);
                         oos.writeObject(mensagem);
 
                         // Desempacotando a mensagem de resposta do servidor
-                        ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
-                        Mensagem reply = (Mensagem) ois.readObject();
+                        ois = new ObjectInputStream(socket.getInputStream());
+                        reply = (Mensagem) ois.readObject();
                         System.out.println(reply.getConteudo());
 
                         ois.close();
