@@ -1,13 +1,17 @@
 package questao_3;
 
-public class Produto {
+import java.io.Serializable;
+
+public class Produto implements Serializable {
 
     String nome;
     double preco;
+    int tipo; // 0 = livro, 1 = ebook, 2 = apostila
 
-    public Produto(String nome, double preco) {
+    public Produto(String nome, double preco, int tipo) {
         this.nome = nome;
         this.preco = preco;
+        this.tipo = tipo;
     }
 
     @Override
@@ -26,7 +30,7 @@ class Livro extends Produto {
     int numPaginas;
 
     public Livro(String nome, double preco, String autor, int numPaginas) {
-        super(nome, preco);
+        super(nome, preco, 0);
         this.autor = autor;
         this.numPaginas = numPaginas;
     }
@@ -43,7 +47,7 @@ class Ebook extends Produto {
     double tamanhoArquivoMb;
 
     public Ebook(String nome, double preco, String autor, double tamanhoArquivoMb) {
-        super(nome, preco);
+        super(nome, preco, 1);
         this.autor = autor;
         this.tamanhoArquivoMb = tamanhoArquivoMb;
     }
@@ -60,7 +64,7 @@ class Apostila extends Produto {
     int numPaginas;
 
     public Apostila(String nome, double preco, String materia, int numPaginas) {
-        super(nome, preco);
+        super(nome, preco, 2);
         this.materia = materia;
         this.numPaginas = numPaginas;
     }
@@ -77,11 +81,11 @@ class Controle {
     private Produto[] produtos;
 
     public Controle() {
-        produtos = new Produto[10];
+        produtos = new Produto[1];
     }
 
     public void incriseSize() {
-        Produto[] produtosTemp = new Produto[produtos.length + 10];
+        Produto[] produtosTemp = new Produto[produtos.length + 2];
         for (int i = 0; i < produtos.length; i++) {
             produtosTemp[i] = produtos[i];
         }
@@ -167,10 +171,33 @@ class Controle {
         }
     }
 
-    public void removeProdutoComDeslocamento(String nome) {
+    public void removerLivroComDeslocamento(String nome) {
         for (int i = 0; i < produtos.length; i++) {
-            if (produtos[i].nome.equals(nome)) {
-                produtos[i] = null;
+            if (produtos[i] instanceof Livro && produtos[i].nome.equals(nome)) {
+                for (int j = i; j < produtos.length - 1; j++) {
+                    produtos[j] = produtos[j + 1];
+                }
+                produtos[produtos.length - 1] = null;
+                break;
+            }
+        }
+    }
+
+    public void removerEbookComDeslocamento(String nome) {
+        for (int i = 0; i < produtos.length; i++) {
+            if (produtos[i] instanceof Ebook && produtos[i].nome.equals(nome)) {
+                for (int j = i; j < produtos.length - 1; j++) {
+                    produtos[j] = produtos[j + 1];
+                }
+                produtos[produtos.length - 1] = null;
+                break;
+            }
+        }
+    }
+
+    public void removerApostilaComDeslocamento(String nome) {
+        for (int i = 0; i < produtos.length; i++) {
+            if (produtos[i] instanceof Apostila && produtos[i].nome.equals(nome)) {
                 for (int j = i; j < produtos.length - 1; j++) {
                     produtos[j] = produtos[j + 1];
                 }
@@ -182,7 +209,7 @@ class Controle {
 
     public void trocarProdutoLivro(String nomeAntigo, String nomeNovo, double preco, String autor, int numPaginas) {
         for (int i = 0; i < produtos.length; i++) {
-            if (produtos[i].nome.equals(nomeAntigo)) {
+            if (produtos[i] instanceof Livro && produtos[i].nome.equals(nomeAntigo)) {
                 produtos[i] = new Livro(nomeNovo, preco, autor, numPaginas);
                 break;
             } else if (produtos[i] == null) {
@@ -195,7 +222,7 @@ class Controle {
     public void trocarProdutoEbook(String nomeAntigo, String nomeNovo, double preco, String autor,
             double tamanhoArquivoMb) {
         for (int i = 0; i < produtos.length; i++) {
-            if (produtos[i].nome.equals(nomeAntigo)) {
+            if (produtos[i] instanceof Ebook && produtos[i].nome.equals(nomeAntigo)) {
                 produtos[i] = new Ebook(nomeNovo, preco, autor, tamanhoArquivoMb);
                 break;
             } else if (produtos[i] == null) {
@@ -208,7 +235,7 @@ class Controle {
     public void trocarProdutoApostila(String nomeAntigo, String nomeNovo, double preco, String materia,
             int numPaginas) {
         for (int i = 0; i < produtos.length; i++) {
-            if (produtos[i].nome.equals(nomeAntigo)) {
+            if (produtos[i] instanceof Apostila && produtos[i].nome.equals(nomeAntigo)) {
                 produtos[i] = new Apostila(nomeNovo, preco, materia, numPaginas);
                 break;
             } else if (produtos[i] == null) {
