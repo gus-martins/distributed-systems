@@ -6,6 +6,7 @@ class Mensagem implements Serializable {
     private static final long serialVersionUID = 1L;
     private String conteudo;
     private Produto produto;
+    private Produto[] arrayProdutos;
 
     public Mensagem(String conteudo) {
         this.conteudo = conteudo;
@@ -15,12 +16,20 @@ class Mensagem implements Serializable {
         this.produto = produto;
     }
 
+    public Mensagem(Produto[] arrayProdutos) {
+        this.arrayProdutos = arrayProdutos;
+    }
+
     public String getConteudo() {
         return conteudo;
     }
 
     public Produto getProduto() {
         return produto;
+    }
+
+    public Produto[] getArrayProdutos() {
+        return arrayProdutos;
     }
 
     public void setConteudo(String mensagem) {

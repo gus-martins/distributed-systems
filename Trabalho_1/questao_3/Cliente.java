@@ -11,12 +11,18 @@ public class Cliente {
         final String IP = "localhost";
 
         // Iniciando o menu
-        try (Socket socket = new Socket(IP, PORTA)) {
+        Socket socket = new Socket(IP, PORTA);
 
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        String opcao;
+
+        ObjectOutputStream oos = null;
+        ObjectInputStream ois = null;
+        Mensagem reply = null;
+        Mensagem mensagem = null;
+
+        try {
             do {
-
-                Controle controle = new Controle();
-
                 System.out.println("Escolha uma opção:");
                 System.out.println("1 - Listar produtos");
                 System.out.println("2 - Trocar produto");
@@ -25,18 +31,26 @@ public class Cliente {
                 System.out.println("5 - Sair");
                 System.out.print("Opção: ");
 
-                BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-                String opcao = br.readLine();
+                opcao = br.readLine();
 
                 switch (opcao) {
                     case "1":
-                        System.out.println("Produtos:");
-                        for (Produto produto : controle.getProdutos()) {
+                        // Empacotar a requisição de listagem de produtos
+                        oos = new ObjectOutputStream(socket.getOutputStream());
+                        mensagem = new Mensagem("listagem");
+                        oos.writeObject(mensagem);
+
+                        // Desempacotar a resposta do servidor
+                        ois = new ObjectInputStream(socket.getInputStream());
+                        reply = (Mensagem) ois.readObject();
+
+                        // "Menu de listagem:"
+                        for (Produto produto : reply.getArrayProdutos()) {
                             System.out.println(produto);
                         }
+
                         break;
                     case "2":
-
                         // Definindo o tipo de produto que o cliente deseja trocar
                         System.out.println("Qual o tipo do produto a ser trocado?");
                         System.out.println("1 - Livro");
@@ -47,21 +61,14 @@ public class Cliente {
 
                         switch (tipoProduto) {
                             case "1":
-                                System.out.println("Livros:");
-                                for (Produto produto : controle.getProdutos()) {
-                                    if (produto instanceof Livro) {
-                                        System.out.println(produto);
-                                    }
-                                }
-
                                 // Empacotar a requisição de troca de produto
-                                ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
-                                Mensagem mensagem = new Mensagem("troca");
+                                oos = new ObjectOutputStream(socket.getOutputStream());
+                                mensagem = new Mensagem("troca");
                                 oos.writeObject(mensagem);
 
                                 // Desempacotar a resposta do servidor
-                                ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
-                                Mensagem reply = (Mensagem) ois.readObject();
+                                ois = new ObjectInputStream(socket.getInputStream());
+                                reply = (Mensagem) ois.readObject();
                                 // "Menu de troca:"
                                 System.out.println(reply.getConteudo());
 
@@ -90,18 +97,8 @@ public class Cliente {
                                 reply = (Mensagem) ois.readObject();
                                 System.out.println(reply.getConteudo());
 
-                                ois.close();
-                                oos.close();
-                                socket.close();
                                 break;
                             case "2":
-                                System.out.println("Ebooks:");
-                                for (Produto produto : controle.getProdutos()) {
-                                    if (produto instanceof Ebook) {
-                                        System.out.println(produto);
-                                    }
-                                }
-
                                 // Empacotar a requisição de troca de produto
                                 oos = new ObjectOutputStream(socket.getOutputStream());
                                 mensagem = new Mensagem("troca");
@@ -137,18 +134,8 @@ public class Cliente {
                                 reply = (Mensagem) ois.readObject();
                                 System.out.println(reply.getConteudo());
 
-                                ois.close();
-                                oos.close();
-                                socket.close();
                                 break;
                             case "3":
-                                System.out.println("Apostilas:");
-                                for (Produto produto : controle.getProdutos()) {
-                                    if (produto instanceof Apostila) {
-                                        System.out.println(produto);
-                                    }
-                                }
-
                                 // Empacotar a requisição de troca de produto
                                 oos = new ObjectOutputStream(socket.getOutputStream());
                                 mensagem = new Mensagem("troca");
@@ -184,13 +171,11 @@ public class Cliente {
                                 reply = (Mensagem) ois.readObject();
                                 System.out.println(reply.getConteudo());
 
-                                ois.close();
-                                oos.close();
-                                socket.close();
                                 break;
                             default:
                                 break;
                         }
+                        break;
                     case "3":
                         // Definindo o tipo de produto que o cliente deseja cadastrar
                         System.out.println("Qual o tipo do produto a ser cadastrado?");
@@ -204,13 +189,13 @@ public class Cliente {
                             case "1":
                                 // Livro
                                 // Empacotar a requisição de cadastro de produto
-                                ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
-                                Mensagem mensagem = new Mensagem("cadastro");
+                                oos = new ObjectOutputStream(socket.getOutputStream());
+                                mensagem = new Mensagem("cadastro");
                                 oos.writeObject(mensagem);
 
                                 // Desempacotar a resposta do servidor
-                                ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
-                                Mensagem reply = (Mensagem) ois.readObject();
+                                ois = new ObjectInputStream(socket.getInputStream());
+                                reply = (Mensagem) ois.readObject();
                                 // "Informe o nome, o preço, o autor e o número de páginas do livro (separados
                                 // por vírgula)"
                                 System.out.println(reply.getConteudo());
@@ -239,8 +224,6 @@ public class Cliente {
                                 reply = (Mensagem) ois.readObject();
                                 System.out.println(reply.getConteudo());
 
-                                ois.close();
-                                oos.close();
                                 break;
                             case "2":
                                 // Ebook
@@ -280,9 +263,6 @@ public class Cliente {
                                 reply = (Mensagem) ois.readObject();
                                 System.out.println(reply.getConteudo());
 
-                                ois.close();
-                                oos.close();
-                                socket.close();
                                 break;
                             case "3":
                                 // Apostila
@@ -322,8 +302,6 @@ public class Cliente {
                                 reply = (Mensagem) ois.readObject();
                                 System.out.println(reply.getConteudo());
 
-                                ois.close();
-                                oos.close();
                                 break;
                         }
                         break;
@@ -339,13 +317,13 @@ public class Cliente {
                         switch (tipoProduto) {
                             case "1":
                                 // Empacotar a requisição de remoção de produto
-                                ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
-                                Mensagem mensagem = new Mensagem("remocao");
+                                oos = new ObjectOutputStream(socket.getOutputStream());
+                                mensagem = new Mensagem("remocao");
                                 oos.writeObject(mensagem);
 
                                 // Desempacotar a resposta do servidor
-                                ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
-                                Mensagem reply = (Mensagem) ois.readObject();
+                                ois = new ObjectInputStream(socket.getInputStream());
+                                reply = (Mensagem) ois.readObject();
                                 // "Menu de remoção"
                                 System.out.println(reply.getConteudo());
 
@@ -363,18 +341,8 @@ public class Cliente {
                                 reply = (Mensagem) ois.readObject();
                                 System.out.println(reply.getConteudo());
 
-                                ois.close();
-                                oos.close();
-                                socket.close();
                                 break;
                             case "2":
-                                System.out.println("Ebooks:");
-                                for (Produto ebook : controle.getProdutos()) {
-                                    if (ebook instanceof Ebook) {
-                                        System.out.println(ebook);
-                                    }
-                                }
-
                                 oos = new ObjectOutputStream(socket.getOutputStream());
                                 mensagem = new Mensagem("remocao");
                                 oos.writeObject(mensagem);
@@ -400,18 +368,8 @@ public class Cliente {
                                 reply = (Mensagem) ois.readObject();
                                 System.out.println(reply.getConteudo());
 
-                                ois.close();
-                                oos.close();
-                                socket.close();
                                 break;
                             case "3":
-                                System.out.println("Apostilas:");
-                                for (Produto apostila : controle.getProdutos()) {
-                                    if (apostila instanceof Apostila) {
-                                        System.out.println(apostila);
-                                    }
-                                }
-
                                 oos = new ObjectOutputStream(socket.getOutputStream());
                                 mensagem = new Mensagem("remocao");
                                 oos.writeObject(mensagem);
@@ -437,9 +395,6 @@ public class Cliente {
                                 reply = (Mensagem) ois.readObject();
                                 System.out.println(reply.getConteudo());
 
-                                ois.close();
-                                oos.close();
-                                socket.close();
                                 break;
                             default:
                                 break;
@@ -447,20 +402,21 @@ public class Cliente {
                         break;
                     case "5":
                         System.out.println("Saindo...");
+                        socket.close();
                         break;
                     default:
                         System.out.println("Opção inválida");
                         break;
                 }
-                socket.close();
-                break;
-            } while (true);
+            } while (!opcao.equals("5"));
         } catch (Exception e) {
             System.out.println("Erro: " + e.getMessage());
         } catch (Throwable e) {
             System.out.println("Erro: " + e.getMessage());
         } finally {
-            System.out.println("Fim do programa");
+            socket.close();
+            oos.close();
+            ois.close();
         }
     }
 }

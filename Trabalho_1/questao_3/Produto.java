@@ -81,7 +81,11 @@ class Controle {
     private Produto[] produtos;
 
     public Controle() {
-        produtos = new Produto[1];
+        produtos = new Produto[3];
+
+        produtos[0] = new Livro("O Elefante Desaparece", 50.00, "Haruki Murakami", 300);
+        produtos[1] = new Ebook("O Hobbit", 30.00, "J. R. R. Tolkien", 10.00);
+        produtos[2] = new Apostila("Cálculo 1", 20.00, "Cálculo", 100);
     }
 
     public void incriseSize() {
@@ -105,7 +109,30 @@ class Controle {
             System.out.println("Não há produtos cadastrados");
             return null;
         }
-        return produtos;
+
+        // retornar primeiro os livros, depois ebooks e depois apostilas
+        Produto[] produtosTemp = new Produto[produtos.length];
+        int j = 0;
+        for (int i = 0; i < produtos.length; i++) {
+            if (produtos[i] instanceof Livro) {
+                produtosTemp[j] = produtos[i];
+                j++;
+            }
+        }
+        for (int i = 0; i < produtos.length; i++) {
+            if (produtos[i] instanceof Ebook) {
+                produtosTemp[j] = produtos[i];
+                j++;
+            }
+        }
+        for (int i = 0; i < produtos.length; i++) {
+            if (produtos[i] instanceof Apostila) {
+                produtosTemp[j] = produtos[i];
+                j++;
+            }
+        }
+
+        return produtosTemp;
     }
 
     public void addLivro(String nome, double preco, String autor, int numPaginas) {

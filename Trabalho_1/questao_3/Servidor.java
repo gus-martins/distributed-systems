@@ -10,26 +10,35 @@ public class Servidor {
 
         final int PORTA = 9876;
 
-        try (ServerSocket serverSocket = new ServerSocket(PORTA)) {
+        ServerSocket serverSocket = new ServerSocket(PORTA);
+        Controle controle = new Controle();
+
+        ObjectInputStream ois = null;
+        ObjectOutputStream oos = null;
+        Mensagem mensagem = null;
+        Mensagem reply = null;
+        Socket socket = null;
+
+        try {
 
             System.out.println("Servidor iniciado na porta " + PORTA);
-
-            Controle controle = new Controle();
+            socket = serverSocket.accept();
+            System.out.println("Cliente conectado: " + socket.getInetAddress().getHostAddress());
 
             while (true) {
-                Socket socket = serverSocket.accept();
-                System.out.println("Cliente conectado: " + socket.getInetAddress().getHostAddress());
-
                 // Desempacotando a mensagem recebida sobre qual operação o cliente deseja
-                ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
-                Mensagem mensagem = (Mensagem) ois.readObject();
+                ois = new ObjectInputStream(socket.getInputStream());
+                mensagem = (Mensagem) ois.readObject();
+
+                System.out.println("Mensagem recebida: " + mensagem.getConteudo());
 
                 // Empacotando a mensagem de resposta do servidor a depender da operação
                 // Caso o cliente deseje Trocar um produto
                 if (mensagem.getConteudo().equals("troca")) {
-                    ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
-                    Mensagem reply = new Mensagem(
-                            "Informe qual o nome do produto antigo e as informações do novo produto. (separados por vírgula)");
+                    // Empacotando a mensagem de resposta do servidor
+                    oos = new ObjectOutputStream(socket.getOutputStream());
+                    reply = new Mensagem(
+                            "Menu de Troca:");
                     oos.writeObject(reply);
 
                     // Desempacotando a mensagem recebida
@@ -44,7 +53,12 @@ public class Servidor {
                     String[] info = mensagem.getConteudo().split(", ");
                     String tipoProduto = info[0];
 
-                    if (tipoProduto.equals("Livro")) {
+                    for (int i = 0; i < info.length; i++) {
+                        System.out.println(info[i]);
+                    }
+
+                    // 1 é livro
+                    if (tipoProduto.equals("1")) {
                         // Removendo o livro antigo
 
                         String nomeLivroAntigo = info[1];
@@ -56,7 +70,10 @@ public class Servidor {
                         controle.trocarProdutoLivro(nomeLivroAntigo, nomeLivroNovo, precoLivroNovo, autorLivroNovo,
                                 numPaginasLivroNovo);
 
-                    } else if (tipoProduto.equals("Ebook")) {
+                        System.out.println("Livro trocado com sucesso");
+
+                        // 2 é ebook
+                    } else if (tipoProduto.equals("2")) {
                         // Removendo o ebook antigo
 
                         String nomeEbookAntigo = info[1];
@@ -68,7 +85,8 @@ public class Servidor {
                         controle.trocarProdutoEbook(nomeEbookAntigo, nomeEbookNovo, precoEbookNovo, autorEbookNovo,
                                 tamanhoArquivoMbEbookNovo);
 
-                    } else if (tipoProduto.equals("Apostila")) {
+                        // 3 é apostila
+                    } else if (tipoProduto.equals("3")) {
                         // Removendo a apostila antiga
 
                         String nomeApostilaAntiga = info[1];
@@ -81,11 +99,17 @@ public class Servidor {
                                 materiaApostilaNova, numPaginasApostilaNova);
 
                     }
+
+                    // Empacotando a mensagem de resposta do servidor
+                    oos = new ObjectOutputStream(socket.getOutputStream());
+                    reply = new Mensagem("Produto trocado com sucesso!");
+                    oos.writeObject(reply);
+
                     // Caso o cliente deseje cadastrar um novo produto
                 } else if (mensagem.getConteudo().equals("cadastro")) {
                     // Empacotando a mensagem de resposta do servidor
-                    ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
-                    Mensagem reply = new Mensagem(
+                    oos = new ObjectOutputStream(socket.getOutputStream());
+                    reply = new Mensagem(
                             "Menu de Cadastro:");
                     oos.writeObject(reply);
 
@@ -112,13 +136,11 @@ public class Servidor {
                     reply = new Mensagem("Produto cadastrado com sucesso!");
                     oos.writeObject(reply);
 
-                    oos.close();
-                    ois.close();
                     // Caso o cliente deseje remover um produto
                 } else if (mensagem.getConteudo().equals("remocao")) {
                     // Empacotando a mensagem de resposta do servidor
-                    ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
-                    Mensagem reply = new Mensagem(
+                    oos = new ObjectOutputStream(socket.getOutputStream());
+                    reply = new Mensagem(
                             "Menu de Remoção:");
                     oos.writeObject(reply);
 
@@ -131,11 +153,11 @@ public class Servidor {
                     String tipoProduto = info[0];
                     String nomeProduto = info[1];
 
-                    if (tipoProduto.equals("Livro")) {
+                    if (tipoProduto.equals("1")) {
                         controle.removerLivroComDeslocamento(nomeProduto);
-                    } else if (tipoProduto.equals("Ebook")) {
+                    } else if (tipoProduto.equals("2")) {
                         controle.removerEbookComDeslocamento(nomeProduto);
-                    } else if (tipoProduto.equals("Apostila")) {
+                    } else if (tipoProduto.equals("3")) {
                         controle.removerApostilaComDeslocamento(nomeProduto);
                     }
 
@@ -144,11 +166,28 @@ public class Servidor {
                     reply = new Mensagem("Produto removido com sucesso!");
                     oos.writeObject(reply);
 
-                    oos.close();
-                    ois.close();
-                }
+                } else if (mensagem.getConteudo().equals("listagem")) {
+                    // Empacotando a mensagem de resposta do servidor
 
+                    Produto[] produtos = controle.getProdutos();
+
+                    oos = new ObjectOutputStream(socket.getOutputStream());
+                    reply = new Mensagem(produtos);
+                    oos.writeObject(reply);
+
+                }
             }
+        } catch (IOException e) {
+            System.out.println("Erro no servidor: " + e.getMessage());
+        } catch (ClassNotFoundException e) {
+            System.out.println("Erro no servidor: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Erro no servidor: " + e.getMessage());
+        } finally {
+            socket.close();
+            serverSocket.close();
+            oos.close();
+            ois.close();
         }
 
     }
