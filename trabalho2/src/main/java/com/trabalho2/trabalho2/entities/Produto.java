@@ -1,12 +1,15 @@
 package com.trabalho2.trabalho2.entities;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class Produto implements Serializable {
 
     private String nome;
     private double preco;
-    private static final long serialVersionUID = 1L;
+    private long id;
 
     public Produto() {
         this.nome = "";
@@ -20,7 +23,7 @@ public class Produto implements Serializable {
 
     @Override
     public String toString() {
-        return nome + " - R$" + String.format("%.2f", preco);
+        return id + " - " + nome + " - R$" + String.format("%.2f", preco);
     }
 
     public static void main(String[] args) {
@@ -45,8 +48,12 @@ public class Produto implements Serializable {
         this.preco = preco;
     }
 
-    public long getSerialversionuid() {
-        return serialVersionUID;
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
 }

@@ -14,21 +14,20 @@ public class ProdutoController {
     @Autowired
     private ProdutoService produtoService;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Produto> getProdutoById(@PathVariable int id) {
-        Produto produto = produtoService.getProdutoById(id);
-
-        return ResponseEntity.ok(produto);
+    @GetMapping("/listar")
+    public ResponseEntity<Produto[]> getProdutos() {
+        Produto[] produtos = produtoService.getProdutos();
+        return ResponseEntity.ok(produtos);
     }
 
-    @PostMapping("")
+    @PostMapping("/adicionar")
     public ResponseEntity<Produto> createProduto(@RequestBody Produto produto) {
         Produto novoProduto = produtoService.addProduto(produto);
         return ResponseEntity.status(HttpStatus.CREATED).body(novoProduto);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProduto(@PathVariable int id) {
+    @DeleteMapping("/deletar/{id}")
+    public ResponseEntity<Void> deleteProduto(@PathVariable(name = "id") long id) {
         boolean deleted = produtoService.deletarProduto(id);
         if (deleted) {
             return ResponseEntity.noContent().build();
@@ -37,9 +36,9 @@ public class ProdutoController {
         }
     }
 
-    @PutMapping("/{nome}")
-    public ResponseEntity<Produto> updateProduto(@PathVariable String nome, @RequestBody Produto produto) {
-        Produto produtoTrocado = produtoService.updateProduto(nome, produto);
+    @PutMapping("/update/{id}")
+    public ResponseEntity<Produto> updateProduto(@PathVariable(name = "id") long id, @RequestBody Produto produto) {
+        Produto produtoTrocado = produtoService.updateProduto(id, produto);
         if (produtoTrocado != null) {
             return ResponseEntity.ok(produtoTrocado);
         } else {

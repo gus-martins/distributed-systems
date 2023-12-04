@@ -20,7 +20,7 @@ public class Cliente {
 
         while (true) {
             System.out.println("Digite a opção desejada: ");
-            System.out.println("1 - Buscar produto");
+            System.out.println("1 - Listar produtos");
             System.out.println("2 - Inserir produto");
             System.out.println("3 - Atualizar produto");
             System.out.println("4 - Deletar produto");
@@ -28,19 +28,16 @@ public class Cliente {
             opcao = reader.readLine();
             switch (opcao) {
                 case "1":
-                    System.out.println("Digite o id do produto: ");
-                    int id = Integer.parseInt(reader.readLine());
-                    ResponseEntity<Produto> response = produtoCliente.getProdutoById(id);
+                    ResponseEntity<Produto[]> response = produtoCliente.getProdutos();
                     if (response.getStatusCode() == HttpStatus.OK) {
-                        Produto produto = response.getBody();
-                        if (produto != null) {
-                            System.out.println(produto.toString());
-                        } else {
-                            System.out.println("Produto não encontrado para id: " + id);
+                        Produto[] produtos = response.getBody();
+                        for (Produto p : produtos) {
+                            System.out.println(p.toString());
                         }
                     } else {
-                        System.out.println("Erro ao buscar o produto. Status: " + response.getStatusCodeValue());
+                        System.out.println("Erro ao buscar os produtos. Status: " + response.getStatusCodeValue());
                     }
+
                     break;
                 case "2":
                     Produto produto = dadosProduto(reader);
@@ -48,20 +45,9 @@ public class Cliente {
                     break;
                 case "3":
                     System.out.println("Digite o id do produto: ");
-                    id = Integer.parseInt(reader.readLine());
-                    response = produtoCliente.getProdutoById(id);
-                    if (response.getStatusCode() == HttpStatus.OK) {
-                        produto = response.getBody();
-                        if (produto != null) {
-                            System.out.println(produto.toString());
-                            produto = dadosProduto(reader);
-                            produtoCliente.updateProduto(id, produto);
-                        } else {
-                            System.out.println("Produto não encontrado para id: " + id);
-                        }
-                    } else {
-                        System.out.println("Erro ao buscar o produto. Status: " + response.getStatusCodeValue());
-                    }
+                    int id = Integer.parseInt(reader.readLine());
+                    produto = dadosProduto(reader);
+                    produtoCliente.updateProduto(id, produto);
                     break;
                 case "4":
                     System.out.println("Digite o id do produto: ");
