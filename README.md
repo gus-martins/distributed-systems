@@ -1,6 +1,7 @@
 **RELATÓRIO - TRABALHO 2 - SISTEMAS DISTRIBUÍDOS**
 
 Augusto César Araújo de Oliveira
+
 Francisco Gustavo Martins de Sousa
 
 O nosso trabalho foi implementar um sistema de biblioteca, contendo livros, apostilas e
